@@ -1,0 +1,788 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="create-tables" author="sergejs.ivaninoks">
+        <createSequence sequenceName="raw_file_seq" />
+
+        <createTable tableName="raw_file" defaultValueSequenceNext="raw_file_seq">
+            <column name="id" type="bigint" >
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_rawFile_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="text"/>
+            <column name="parsed" type="bool"/>
+        </createTable>
+
+        <createSequence sequenceName="base_data_seq" />
+
+        <createTable tableName="base_data" defaultValueSequenceNext="base_data_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_baseData_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="raw_file_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="welcome_picture_name" type="varchar"/>
+            <column name="app_version" type="varchar(20)"/>
+            <column name="save_date_time" type="timestamp without time zone"/>
+            <column name="performance_date_time" type="timestamp without time zone"/>
+            <column name="risk_date_time" type="timestamp without time zone"/>
+            <column name="force_update" type="smallint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="base_data" baseColumnNames="raw_file_id"
+                                 constraintName="fk_raw_file"
+                                 referencedTableName="raw_file" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="system_parameter_seq" />
+
+        <createTable tableName="system_parameter" defaultValueSequenceNext="system_parameter_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_systemParameter_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="base_data_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="system_parameter" baseColumnNames="base_data_id"
+                                 constraintName="fk_base_data_system_parameter"
+                                 referencedTableName="base_data" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="geo_location_list_seq" />
+
+        <createTable tableName="geo_location_list" defaultValueSequenceNext="geo_location_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_geoLocationList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="system_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="geo_location_list" baseColumnNames="system_parameter_id"
+                                 constraintName="fk_system_parameter_geo_location_list"
+                                 referencedTableName="system_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="geo_location_seq" />
+
+        <createTable tableName="geo_location" defaultValueSequenceNext="geo_location_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_geoLocation_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="geo_location_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_line" type="smallint"/>
+            <column name="client_domicile" type="smallint"/>
+            <column name="geo_location_iso" type="varchar(10)"/>
+            <column name="enforce_location_check" type="bool"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="geo_location" baseColumnNames="geo_location_list_id"
+                                 constraintName="fk_geo_location_list"
+                                 referencedTableName="geo_location_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="client_language_list_seq" />
+
+        <createTable tableName="client_language_list" defaultValueSequenceNext="client_language_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_clientLanguageList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="system_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_language_list" baseColumnNames="system_parameter_id"
+                                 constraintName="fk_system_parameter_client_language_list"
+                                 referencedTableName="system_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="client_language_seq" />
+
+        <createTable tableName="client_language" defaultValueSequenceNext="client_language_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_clientLanguage_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_language_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_line" type="smallint"/>
+            <column name="client_domicile" type="smallint"/>
+            <column name="language_id" type="smallint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_language" baseColumnNames="client_language_list_id"
+                                 constraintName="fk_client_language_list"
+                                 referencedTableName="client_language_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="product_parameter_seq" />
+
+        <createTable tableName="product_parameter" defaultValueSequenceNext="product_parameter_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productParameter_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="base_data_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+
+        <addForeignKeyConstraint baseTableName="product_parameter" baseColumnNames="base_data_id"
+                                 constraintName="fk_base_data_product_parameter"
+                                 referencedTableName="base_data" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="product_line_list_seq" />
+
+        <createTable tableName="product_line_list" defaultValueSequenceNext="product_line_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productLineList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="product_line_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_product_line_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="product_line_seq" />
+
+        <createTable tableName="product_line" defaultValueSequenceNext="product_line_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productLine_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_line_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="lookup_id" type="varchar(20)"/>
+            <column name="short_name" type="varchar(20)"/>
+            <column name="sort_rank" type="smallint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="product_line" baseColumnNames="product_line_list_id"
+                                 constraintName="fk_product_line_list"
+                                 referencedTableName="product_line_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="product_line_language_label_list_seq" />
+
+        <createTable tableName="product_line_language_label_list" defaultValueSequenceNext="product_line_language_label_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productLineLanguageLabelList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_line_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="product_line_language_label_list" baseColumnNames="product_line_id"
+                                 constraintName="fk_product_line"
+                                 referencedTableName="product_line" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="product_line_language_label_seq" />
+
+        <createTable tableName="product_line_language_label" defaultValueSequenceNext="product_line_language_label_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productLineLanguageLabel_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_line_language_label_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="language_id" type="smallint"/>
+            <column name="label_text" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="product_line_language_label" baseColumnNames="product_line_language_label_list_id"
+                                 constraintName="fk_product_line_language_label_list"
+                                 referencedTableName="product_line_language_label_list" referencedColumnNames="id"/>
+
+
+
+<!--        ====================+++++++++===================+++++++++===========================-->
+
+        <createSequence sequenceName="client_domicile_list_seq" />
+
+        <createTable tableName="client_domicile_list" defaultValueSequenceNext="client_domicile_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_clientDomicileList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_domicile_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_client_domicile_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="client_domicile_seq" />
+
+        <createTable tableName="client_domicile" defaultValueSequenceNext="client_domicile_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_clientDomicile_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_domicile_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="lookup_id" type="varchar(100)"/>
+            <column name="short_name" type="varchar(20)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_domicile" baseColumnNames="client_domicile_list_id"
+                                 constraintName="fk_client_domicile_list"
+                                 referencedTableName="client_domicile_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="client_domicile_language_label_list_seq" />
+
+        <createTable tableName="client_domicile_language_label_list" defaultValueSequenceNext="client_domicile_language_label_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_clientDomicileLanguageLabelList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_domicile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_domicile_language_label_list" baseColumnNames="client_domicile_id"
+                                 constraintName="fk_client_domicile"
+                                 referencedTableName="client_domicile" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="client_domicile_language_label_seq" />
+
+        <createTable tableName="client_domicile_language_label" defaultValueSequenceNext="client_domicile_language_label_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_clientDomicileLanguageLabel_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_domicile_language_label_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="language_id" type="smallint"/>
+            <column name="label_text" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="client_domicile_language_label" baseColumnNames="client_domicile_language_label_list_id"
+                                 constraintName="fk_client_domicile_language_label_list"
+                                 referencedTableName="client_domicile_language_label_list" referencedColumnNames="id"/>
+
+
+
+
+        <!--        ====================+++++++++===================+++++++++===========================-->
+
+        <createSequence sequenceName="risk_profile_list_seq" />
+
+        <createTable tableName="risk_profile_list" defaultValueSequenceNext="risk_profile_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_riskProfileList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="risk_profile_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_risk_profile_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="risk_profile_seq" />
+
+        <createTable tableName="risk_profile" defaultValueSequenceNext="risk_profile_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_riskProfile_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="risk_profile_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="lookup_id" type="varchar(20)"/>
+            <column name="short_name" type="varchar(20)"/>
+            <column name="sort_rank" type="smallint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="risk_profile" baseColumnNames="risk_profile_list_id"
+                                 constraintName="fk_risk_profile_list"
+                                 referencedTableName="risk_profile_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="risk_profile_language_label_list_seq" />
+
+        <createTable tableName="risk_profile_language_label_list" defaultValueSequenceNext="risk_profile_language_label_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_riskProfileLanguageLabelList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="risk_profile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="risk_profile_language_label_list" baseColumnNames="risk_profile_id"
+                                 constraintName="fk_risk_profile"
+                                 referencedTableName="risk_profile" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="risk_profile_language_label_seq" />
+
+        <createTable tableName="risk_profile_language_label" defaultValueSequenceNext="risk_profile_language_label_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_riskProfileLanguageLabel_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="risk_profile_language_label_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="language_id" type="smallint"/>
+            <column name="label_text" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="risk_profile_language_label" baseColumnNames="risk_profile_language_label_list_id"
+                                 constraintName="fk_risk_profile_language_label_list"
+                                 referencedTableName="risk_profile_language_label_list" referencedColumnNames="id"/>
+
+
+
+        <!--        ====================+++++++++===================+++++++++===========================-->
+
+        <createSequence sequenceName="ref_ccy_list_seq" />
+
+        <createTable tableName="ref_ccy_list" defaultValueSequenceNext="ref_ccy_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_refCcyList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="ref_ccy_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_ref_ccy_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="ref_ccy_seq" />
+
+        <createTable tableName="ref_ccy" defaultValueSequenceNext="ref_ccy_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_refCcy_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ref_ccy_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="iso_code" type="varchar(20))"/>
+            <column name="short_name" type="varchar(20)"/>
+            <column name="sort_rank" type="smallint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="ref_ccy" baseColumnNames="ref_ccy_list_id"
+                                 constraintName="fk_ref_ccy_list"
+                                 referencedTableName="ref_ccy_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="ref_ccy_language_label_list_seq" />
+
+        <createTable tableName="ref_ccy_language_label_list" defaultValueSequenceNext="ref_ccy_language_label_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_refCcyLanguageLabelList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ref_ccy_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="ref_ccy_language_label_list" baseColumnNames="ref_ccy_id"
+                                 constraintName="fk_ref_ccy"
+                                 referencedTableName="ref_ccy" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="ref_ccy_language_label_seq" />
+
+        <createTable tableName="ref_ccy_language_label" defaultValueSequenceNext="ref_ccy_language_label_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_refCcyLanguageLabel_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ref_ccy_language_label_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="language_id" type="smallint"/>
+            <column name="label_text" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="ref_ccy_language_label" baseColumnNames="ref_ccy_language_label_list_id"
+                                 constraintName="fk_ref_ccy_language_label_list"
+                                 referencedTableName="ref_ccy_language_label_list" referencedColumnNames="id"/>
+
+
+
+
+        <!--        ====================+++++++++===================+++++++++===========================-->
+
+        <createSequence sequenceName="asset_class_list_seq" />
+
+        <createTable tableName="asset_class_list" defaultValueSequenceNext="asset_class_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_assetClassList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="asset_class_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_asset_class_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+        <createSequence sequenceName="asset_class_seq" />
+
+        <createTable tableName="asset_class" defaultValueSequenceNext="asset_class_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_assetClass_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="asset_class_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="lookup_id" type="bigint"/>
+            <column name="short_name" type="varchar(20)"/>
+            <column name="sort_rank" type="smallint"/>
+            <column name="color_code_hex" type="char(6)"/>
+            <column name="back_color_code_hex" type="char(6)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="asset_class" baseColumnNames="asset_class_list_id"
+                                 constraintName="fk_asset_class_list"
+                                 referencedTableName="asset_class_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="asset_class_language_label_list_seq" />
+
+        <createTable tableName="asset_class_language_label_list" defaultValueSequenceNext="asset_class_language_label_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_assetClassLanguageLabelList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="asset_class_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="asset_class_language_label_list" baseColumnNames="asset_class_id"
+                                 constraintName="fk_asset_class"
+                                 referencedTableName="asset_class" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="asset_class_language_label_seq" />
+
+        <createTable tableName="asset_class_language_label" defaultValueSequenceNext="asset_class_language_label_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_assetClassLanguageLabel_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="asset_class_language_label_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="language_id" type="smallint"/>
+            <column name="label_text" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="asset_class_language_label" baseColumnNames="asset_class_language_label_list_id"
+                                 constraintName="fk_asset_class_language_label_list"
+                                 referencedTableName="asset_class_language_label_list" referencedColumnNames="id"/>
+
+
+
+        <createSequence sequenceName="product_parameter_language_list_seq" />
+
+        <createTable tableName="product_parameter_language_list" defaultValueSequenceNext="product_parameter_language_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productParameterLanguageList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="product_parameter_language_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_product_language_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="product_parameter_language_seq" />
+
+        <createTable tableName="product_parameter_language" defaultValueSequenceNext="product_parameter_language_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_productParameterLanguage_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_language_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="lookup_id" type="varchar(10)"/>
+            <column name="short_name" type="varchar(20)"/>
+            <column name="sort_rank" type="smallint"/>
+            <column name="visible" type="bool"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="product_parameter_language" baseColumnNames="product_parameter_language_list_id"
+                                 constraintName="fk_product_parameter_language_list"
+                                 referencedTableName="product_parameter_language_list" referencedColumnNames="id"/>
+
+
+
+        <createSequence sequenceName="alloc_bdwth_list_seq" />
+
+        <createTable tableName="alloc_bdwth_list" defaultValueSequenceNext="alloc_bdwth_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_allocBdwthList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="alloc_bdwth_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_alloc_bdwth_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="alloc_bdwth_seq" />
+
+        <createTable tableName="alloc_bdwth" defaultValueSequenceNext="alloc_bdwth_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_allocBdwth_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="alloc_bdwth_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="risk_profile_id" type="bigint"/>
+            <column name="asset_class_id" type="int"/>
+            <column name="WgtMin" type="int"/>
+            <column name="WgtMax" type="int"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="alloc_bdwth" baseColumnNames="alloc_bdwth_list_id"
+                                 constraintName="fk_alloc_bdwth_list"
+                                 referencedTableName="alloc_bdwth_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="concentration_limits_seq" />
+
+        <createTable tableName="concentration_limits" defaultValueSequenceNext="concentration_limits_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_concentrationLimits_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bulk_limit" type="int"/>
+            <column name="issuer_limit" type="int"/>
+            <column name="SOMEINS_issuerLimit" type="int"/>
+            <column name="SOMEINS_issuerId" type="varchar(20)"/>
+            <column name="fund_bulk_limit" type="int"/>
+            <column name="fund_bulk_issuer_name" type="varchar(100)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="concentration_limits" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_concentration_limits"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+<!--        =========================================================================-->
+
+
+        <createSequence sequenceName="module_attribute_list_seq" />
+
+        <createTable tableName="module_attribute_list" defaultValueSequenceNext="module_attribute_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_moduleAttributeList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_parameter_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="module_attribute_list" baseColumnNames="product_parameter_id"
+                                 constraintName="fk_product_parameter_module_attribute_list"
+                                 referencedTableName="product_parameter" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="module_attribute_seq" />
+
+        <createTable tableName="module_attribute" defaultValueSequenceNext="module_attribute_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_moduleAttribute_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_attribute_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_id" type="bigint"/>
+            <column name="short_name" type="varchar(20)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="module_attribute" baseColumnNames="module_attribute_list_id"
+                                 constraintName="fk_module_attribute_list"
+                                 referencedTableName="module_attribute_list" referencedColumnNames="id"/>
+
+
+        <createSequence sequenceName="module_attribute_language_label_list_seq" />
+
+        <createTable tableName="module_attribute_language_label_list" defaultValueSequenceNext="module_attribute_language_label_list_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_moduleAttributeLanguageLabelList_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_attribute_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="module_attribute_language_label_list" baseColumnNames="module_attribute_id"
+                                 constraintName="fk_module_attribute_language_label_list"
+                                 referencedTableName="module_attribute" referencedColumnNames="id"/>
+
+
+
+        <createSequence sequenceName="module_attribute_language_label_seq" />
+
+        <createTable tableName="module_attribute_language_label" defaultValueSequenceNext="module_attribute_language_label_seq">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_moduleAttributeLanguageLabel_id"/>
+            </column>
+            <column name="created" type="timestamp without time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_attribute_language_label_list_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="language_id" type="smallint"/>
+            <column name="label_text" type="text"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="module_attribute_language_label" baseColumnNames="module_attribute_language_label_list_id"
+                                 constraintName="fk_module_attribute_language_label_list_label"
+                                 referencedTableName="module_attribute_language_label_list" referencedColumnNames="id"/>
+
+        <sqlFile path="liquibase/sql/parsing.sql" splitStatements="false"/>
+    </changeSet>
+</databaseChangeLog>

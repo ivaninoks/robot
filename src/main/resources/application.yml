@@ -1,0 +1,35 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: importer-robot-service
+  profiles:
+    active: local
+  datasource:
+    hikari:
+      pool-name: robot-service-app-cp
+      maximum-pool-size: 20
+      max-lifetime: 30000
+      idle-timeout: 0
+  servlet:
+    multipart:
+      max-file-size: 800MB
+      max-request-size: 800MB
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+        id:
+          new_generator_mappings: true
+        defaultSchema: public
+        order_updates: true
+        jdbc:
+          fetch_size: 0
+        hbm2ddl:
+          auto: validate
+        show_sql: true
+        format_sql: false
+
+  liquibase:
+    change-log: classpath:liquibase/base-main.xml
+    contexts: main
